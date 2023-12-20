@@ -14,8 +14,8 @@ var maotai = new Maotai()
 // -----------------------------------------------------------------------------------------
 // 配置项
 var isClearShopDir = $.getdata('imaotai__config__clearshopdir') || false // 是否清理店铺字典
-var province = $.getdata('imaotai__config__province') || '' // 省份
-var city = $.getdata('imaotai__config__city') || '' // 城市
+var province = $.getdata('MT_PROVINCE') || '浙江省' // 省份
+var city = $.getdata('MT_CITY') || '杭州市' // 城市
 var itemCode = $.getdata('imaotai__config__itemcode') || '10213' // 预约项
 var location = $.getdata('imaotai__config__location') || '' // 地址经纬度
 var address = $.getdata('imaotai__config__address') || '' // 详细地址
@@ -46,8 +46,8 @@ var itemMap = {
         Message = `抓取数据成功🎉\nuserId:${userId}`
         return false
     }
-    // if (JSON.stringify(imaotaiParams) === '{}') throw `请先开启代理工具对必要参数进行抓包`
-    // if (!imaotaiParams.userId || !imaotaiParams.headers['MT-Token']) throw '请先开启代理工具进行抓包相关操作!'
+    if (JSON.stringify(imaotaiParams) === '{}') throw `请先开启代理工具对必要参数进行抓包`
+    if (!imaotaiParams.userId || !imaotaiParams.headers['MT-Token']) throw '请先开启代理工具进行抓包相关操作!'
     if (!province) throw '请在BoxJs中配置省份'
     if (!city) throw '请在BoxJs中配置城市'
     if (!itemCode) throw '请在BoxJs中配置预约项'
