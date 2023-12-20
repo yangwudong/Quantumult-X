@@ -47,7 +47,7 @@ var itemMap = {
         return false
     }
     // if (JSON.stringify(imaotaiParams) === '{}') throw `请先开启代理工具对必要参数进行抓包`
-    if (!imaotaiParams.userId || !imaotaiParams.headers['MT-Token']) throw '请先开启代理工具进行抓包相关操作!'
+    // if (!imaotaiParams.userId || !imaotaiParams.headers['MT-Token']) throw '请先开启代理工具进行抓包相关操作!'
     if (!province) throw '请在BoxJs中配置省份'
     if (!city) throw '请在BoxJs中配置城市'
     if (!itemCode) throw '请在BoxJs中配置预约项'
