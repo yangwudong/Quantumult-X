@@ -5,17 +5,32 @@
  * @author 𝒀𝒖𝒉𝒆𝒏𝒈
  * @update 20231002
  * @version 1.0.0
+ ******************************************
+###详细见同目录README
+```Quantumult X
+[mitm]
+hostname = app.moutai519.com.cn
+
+[rewrite_local]
+https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https://raw.githubusercontent.com/Yuheng0101/X/main/Tasks/imaotai/imaotai.js
+
+[task_local]
+# 茅台自动预约
+12 9 * * * https://raw.githubusercontent.com/yangwudong/Quantumult-X/main/Scripts/iMaoTai.js, tag=i茅台自动预约, img-url=https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/ae/f4/18/aef41811-955e-e6b0-5d23-6763c2eef1ab/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/144x144.png, enabled=true
+```
 ******************************************/
+
 var $ = new Env('i茅台'),service = $.http
 // 开发方便兼容node
 $.isNode() && (($request = null), ($response = null))
+// 注释掉因为默认全局加载
 // var CryptoJS = loadCryptoJS()
 var maotai = new Maotai()
 // -----------------------------------------------------------------------------------------
 // 配置项
 var isClearShopDir = $.getdata('imaotai__config__clearshopdir') || false // 是否清理店铺字典
-var province = $.getdata('MT_PROVINCE') || '浙江省' // 省份
-var city = $.getdata('MT_CITY') || '杭州市' // 城市
+var province = $.getdata('imaotai__config__province') || '' // 省份
+var city = $.getdata('imaotai__config__city') || '' // 城市
 var itemCode = $.getdata('imaotai__config__itemcode') || '10213' // 预约项
 var location = $.getdata('imaotai__config__location') || '' // 地址经纬度
 var address = $.getdata('imaotai__config__address') || '' // 详细地址
@@ -57,7 +72,7 @@ var itemMap = {
     if (shopid) maotai.shopId = shopid
     // 当前时间段如果不是9点 - 10点，不允许预约
     var _hour = new Date().getHours()
-    // if (_hour < 9 || _hour > 10) throw '不在有效的预约时间内'
+    if (_hour < 9 || _hour > 10) throw '不在有效的预约时间内'
     var { headers, userId } = imaotaiParams
     maotai.headers = Object.assign(maotai.headers, headers)
     maotai.userId = userId
@@ -334,6 +349,7 @@ function DecryptHelper() {
         }
     })()
 }
+
 /***************** Env *****************/
 // prettier-ignore
 // https://github.com/chavyleung/scripts/blob/master/Env.min.js
