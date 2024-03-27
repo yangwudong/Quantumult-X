@@ -77,8 +77,7 @@ function getUserSessionContext() {
 
   if (/game\/userinfo/.test($request.url)) {
     $.log("请求为game/userinfo，获取茅台游戏数据");
-    const gameCookie = $request.headers.cookie;
-    $.log(`Request Headers: ${JSON.stringify($request.headers)}`);
+    const gameCookie = $request.headers.Cookie;
 
     $.log(`获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`);
