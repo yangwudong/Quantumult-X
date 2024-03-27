@@ -23,7 +23,6 @@ https://app.moutai519.com.cn/xhr/front/user/info url script-response-body https:
 var $ = new Env('i茅台'),service = $.http
 // 开发方便兼容node
 $.isNode() && (($request = null), ($response = null))
-var maotai = new Maotai()
 // -----------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------
 var itemMap = {
@@ -35,9 +34,9 @@ var itemMap = {
   10942: "贵州茅台酒（甲辰龙年）x2",
 };
 
-$.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata('is_debug')) || 'false';
+// $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata('is_debug')) || 'false';
 
-const notify = async (msg) => $.msg($.name, "", msg);
+// const notify = async (msg) => $.msg($.name, "", msg);
 
 // 抓包
 if ($request && typeof $request === 'object') {
@@ -48,13 +47,13 @@ if ($request && typeof $request === 'object') {
     }
     
     $.log('请求有效，开始解析内容');
-    await getUserSessionContext();
+    // await getUserSessionContext();
     $.done();
 }
 
 async function getUserSessionContext() {
-  debug($request.headers);
-  debug($request.body);
+//   debug($request.headers);
+//   debug($request.body);
 
   if (/user\/info/.test($request.url)) {
     $.log('请求为user/info，获取用户数据');
