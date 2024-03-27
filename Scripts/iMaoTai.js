@@ -40,20 +40,16 @@ $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata('is_debug')) || 'fal
 
 // 抓包
 if ($request && typeof $request === 'object') {
-    $.log('开始抓包：', $request.url);
-    if ($request.method === 'OPTIONS') {
-        $.log('抓包请求为：OPTIONS，丢弃');
-        $.done();
+    if ($request.method === "OPTIONS") {
+      $.done();
     }
     
-    $.log('请求有效，开始解析内容');
     getUserSessionContext();
     $.done();
 }
 
 function getUserSessionContext() {
   if (/user\/info/.test($request.url)) {
-    $.log("请求为user/info，获取用户数据");
     const mtToken =
       $request.headers["MT-Token"] ||
       $request.headers["Mt-Token"] ||
@@ -69,12 +65,20 @@ function getUserSessionContext() {
         userId: ${userId}\n
         token: ${mtToken}\n
         deviceId: ${mtDeviceId}`);
-    $.msg($.name, ``, `🎉 茅台用户数据获取成功 🎉。`);
+    $.msg(
+      $.name,
+      ``,
+      `🎉 茅台用户数据获取成功 🎉\n
+        userId: ${userId}\n
+        token: ${mtToken}\n
+        deviceId: ${mtDeviceId}`
+    );
   }
 
   if (/game\/userinfo/.test($request.url)) {
-    $.log("请求为game/chessboard，获取茅台游戏数据");
+    $.log("请求为game/userinfo，获取茅台游戏数据");
     const gameCookie = $request.headers.cookie;
+    $.log(`Request Headers: ${JSON.stringify($request.headers)}`);
 
     $.log(`获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`);
