@@ -47,7 +47,7 @@ if ($request && typeof $request === 'object') {
     }
     
     $.log('请求有效，开始解析内容');
-    await getUserSessionContext();
+    getUserSessionContext().then();
     $.done();
 }
 
