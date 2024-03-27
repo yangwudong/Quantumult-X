@@ -69,12 +69,7 @@ function getUserSessionContext() {
         userId: ${userId}\n
         token: ${mtToken}\n
         deviceId: ${mtDeviceId}`);
-    // await notify(
-    //   `获取用户数据成功🎉\n
-    //     userId: ${userId}\n
-    //     token: ${mtToken}\n
-    //     deviceId: ${mtDeviceId}`
-    // );
+    notify(`获取用户数据成功🎉`);
   }
 
   if (/game\/chessboard/.test($request.url)) {
@@ -83,10 +78,7 @@ function getUserSessionContext() {
 
     $.log(`获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`);
-    // await notify(
-    //   `获取茅台游戏数据成功🎉\n
-    //     cookie: ${gameCookie}`
-    // );
+    notify(`获取茅台游戏数据成功🎉`);
   }
 }
 
