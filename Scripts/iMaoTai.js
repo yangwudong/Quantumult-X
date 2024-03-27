@@ -37,12 +37,17 @@ var itemMap = {
 
 $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata('is_debug')) || 'false';
 
+const notify = async (msg) => $.msg($.name, "", msg);
+
 // 抓包
 if ($request && typeof $request === 'object') {
+    $.log('开始抓包：', $request.url);
     if ($request.method === 'OPTIONS') {
+        $.log('抓包请求为：OPTIONS，丢弃');
         $.done();
     }
     
+    $.log('请求有效，开始解析内容');
     await getUserSessionContext();
     $.done();
 }
@@ -51,9 +56,8 @@ async function getUserSessionContext() {
   debug($request.headers);
   debug($request.body);
 
-  const notify = async (msg) => $.msg($.name, "", msg);
-
   if (/user\/info/.test($request.url)) {
+    $.log('请求为user/info，获取用户数据');
     const mtToken =
       $request.headers["MT-Token"] ||
       $request.headers["Mt-Token"] ||
@@ -65,6 +69,10 @@ async function getUserSessionContext() {
     const response = JSON.parse($response.body);
     const userId = response.data.userId;
 
+    $.log(`获取用户数据成功🎉\n
+        userId: ${userId}\n
+        token: ${mtToken}\n
+        deviceId: ${mtDeviceId}`);
     await notify(
       `获取用户数据成功🎉\n
         userId: ${userId}\n
@@ -74,8 +82,11 @@ async function getUserSessionContext() {
   }
 
   if (/game\/chessboard/.test($request.url)) {
+    $.log('请求为game/chessboard，获取茅台游戏数据');
     const gameCookie = $request.headers.cookie;
 
+    $.log(`获取茅台游戏数据成功🎉\n
+        cookie: ${gameCookie}`);
     await notify(
       `获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`
