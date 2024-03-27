@@ -36,7 +36,7 @@ var itemMap = {
 
 $.is_debug = ($.isNode() ? process.env.IS_DEDUG : $.getdata('is_debug')) || 'false';
 
-const notify = (msg) => $.msg($.name, "", msg);
+// const notify = (msg) => $.msg($.name, "", msg);
 
 // 抓包
 if ($request && typeof $request === 'object') {
@@ -69,16 +69,16 @@ function getUserSessionContext() {
         userId: ${userId}\n
         token: ${mtToken}\n
         deviceId: ${mtDeviceId}`);
-    notify(`获取用户数据成功🎉`);
+    $.msg($.name, ``, `🎉 茅台用户数据获取成功 🎉。`);
   }
 
-  if (/game\/chessboard/.test($request.url)) {
+  if (/game\/userinfo/.test($request.url)) {
     $.log("请求为game/chessboard，获取茅台游戏数据");
     const gameCookie = $request.headers.cookie;
 
     $.log(`获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`);
-    notify(`获取茅台游戏数据成功🎉`);
+    $.msg($.name, ``, `🎉 茅台游戏数据获取成功 🎉。`);
   }
 }
 
