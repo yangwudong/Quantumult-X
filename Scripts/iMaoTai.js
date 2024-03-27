@@ -52,9 +52,6 @@ if ($request && typeof $request === 'object') {
 }
 
 async function getUserSessionContext() {
-  debug($request.headers);
-  debug($request.body);
-
   if (/user\/info/.test($request.url)) {
     $.log('请求为user/info，获取用户数据');
     const mtToken =
