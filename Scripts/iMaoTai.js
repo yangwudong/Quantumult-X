@@ -81,7 +81,12 @@ function getUserSessionContext() {
 
     $.log(`获取茅台游戏数据成功🎉\n
         cookie: ${gameCookie}`);
-    $.msg($.name, ``, `🎉 茅台游戏数据获取成功 🎉。`);
+    $.msg(
+      $.name,
+      ``,
+      `🎉 茅台游戏数据获取成功 🎉\n
+       cookie: ${gameCookie}`
+    );
   }
 }
 
