@@ -24,7 +24,7 @@ function getSessionContext() {
   debug($request.headers);
   debug($request.body);
   if (/mixc\/gateway/.test($request.url)) {
-    const requestBody = $request.body;
+    const requestBody = decodeURIComponent($request.body);
 
     $.log(`获取一点万象Session数据成功🎉\n
         Token: ${requestBody.token}\n
