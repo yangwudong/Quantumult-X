@@ -24,12 +24,18 @@ function getSessionContext() {
   debug($request.headers);
   debug($request.body);
   if (/mixc\/gateway/.test($request.url)) {
-    const requestBody = decodeURIComponent($request.body);
+    const parsedBody = {};
+    const pairs = $request.body.split("&");
 
-    $.log(`1获取一点万象Session数据成功🎉\n
-        Token: ${requestBody.token}\n
-        DeviceParams: ${requestBody.deviceParams}\n
-        Session Body: ${requestBody}`);
+    for (const pair of pairs) {
+      const [key, value] = pair.split("=");
+      parsedBody[decodeURIComponent(key)] = decodeURIComponent(value);
+    }
+
+    $.log(`2获取一点万象Session数据成功🎉\n
+        Token: ${parsedBody.token}\n
+        DeviceParams: ${parsedBody.deviceParams}\n
+        Session Body: ${parsedBody}`);
     // $.msg(
     //   $.name,
     //   ``,
