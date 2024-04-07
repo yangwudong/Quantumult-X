@@ -32,18 +32,16 @@ function getSessionContext() {
       parsedBody[decodeURIComponent(key)] = decodeURIComponent(value);
     }
 
-    $.log(`2获取一点万象Session数据成功🎉\n
+    $.log(`获取一点万象Session数据成功🎉\n
         Token: ${parsedBody.token}\n
-        DeviceParams: ${parsedBody.deviceParams}\n
-        Session Body: ${parsedBody}`);
-    // $.msg(
-    //   $.name,
-    //   ``,
-    //   `🎉 获取一点万象Session数据成功 🎉\n
-    //     Device Id: ${deviceId}\n
-    //     MBC-User-Agent: ${mbcUserAgent}\n
-    //     Session Body: ${renewSessionBody}`
-    // );
+        DeviceParams: ${parsedBody.deviceParams}\n`);
+    $.msg(
+      $.name,
+      ``,
+      `🎉 获取一点万象Session数据成功 🎉\n
+      Token: ${parsedBody.token}\n
+      DeviceParams: ${parsedBody.deviceParams}\n`
+    );
   }
 }
 
