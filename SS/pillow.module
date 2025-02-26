@@ -11,7 +11,7 @@
 
 [Script]
 
-Pillow=type=http-response,pattern=^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+\/(receipts$|subscribers\/?(.*?)*$),requires-body=1 ,script-path=https://raw.githubusercontent.com/chxm1023/Rewrite/main/Reheji.js
+Pillow=type=http-response,pattern=^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+\/(receipts$|subscribers\/?(.*?)*$),requires-body=1 ,script-path=https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/pillow.js
 
 [MITM]
 
