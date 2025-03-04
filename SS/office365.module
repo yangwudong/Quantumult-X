@@ -9,7 +9,7 @@
 
 
 [Script]
-Office365 = type=http-request, pattern=^https:\/\/outlook\.office[365]*\.com\/, requires-body=0, script-path=https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/office365.js
+Office365 = type=http-request, pattern=^https:\/\/((outlook\.office[365]*)|(login\.microsoftonline))\.com\/, requires-body=0, script-path=https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/office365.js
 
 [MITM]
-hostname = %APPEND% outlook.office365.com, outlook.office.com
+hostname = %APPEND% outlook.office365.com, outlook.office.com, microsoftonline.com
