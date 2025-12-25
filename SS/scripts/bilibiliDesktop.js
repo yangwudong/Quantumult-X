@@ -2,6 +2,10 @@
 // For use with Shadowrocket module
 // URL pattern: https://api.bilibili.com/x/player/wbi/v2
 
+console.log(`Bilibili request matched - Jack Yang`);
+console.log(`Request URL: ${$request.url}`);
+console.log(`Response body: ${$response.body}`);
+
 const url = $request.url;
 let body = $response.body;
 
