@@ -15,95 +15,203 @@
 
 const $ = new Env('B站');
 
-$.log(`Bilibili request matched - Jack Yang`);
-$.log(`Request URL: ${$request.url}`);
-$.log(`Response body: ${$response.body}`);
-
-
 const url = $request.url;
 let obj = JSON.parse($response.body);
 
 try {
-  // Handle playurl API - Unlock video quality
-  if (/\/player\/wbi\/playurl/.test(url)) {
-    if (obj.data && obj.data.support_formats) {
-      // Unlock all quality levels by setting limit_watch_reason to 0
-      obj.data.support_formats.forEach(format => {
-        if (format.limit_watch_reason !== undefined && format.limit_watch_reason === 1) {
-          format.limit_watch_reason = 0;
-          $.log(`Unlocked quality: ${format.new_description || format.display_desc}`);
-        }
-      });
-      $.log("Bilibili video quality unlocked successfully");
+  // Handle web-interface/nav - This is critical for PC/Web VIP verification!
+  if (/\/x\/web-interface\/nav/.test(url)) {
+    if (obj.data) {
+      // Set VIP info at root level
+      obj.data.vip_type = 2;
+      obj.data.vipStatus = 1;
+      obj.data.vipDueDate = 1892946300000;
+      
+      // Modify VIP object
+      if (obj.data.vip) {
+        modifyVipStatus(obj.data.vip);
+      } else {
+        obj.data.vip = createVipObject();
+      }
+      
+      $.msg($.name, ``, "Bilibili web navigation VIP modified");
     }
   }
   
-  // Handle player/v2 and space/acc/info APIs - Modify VIP status
-  if (obj.data && obj.data.vip) {
-    // Core VIP status
-    obj.data.vip.type = 2;                    // VIP type: 2 = 年度及以上大会员 (Annual VIP)
-    obj.data.vip.status = 1;                  // Status: 1 = active
-    obj.data.vip.vip_pay_type = 1;            // Payment type: 1 = paid subscription
-    obj.data.vip.due_date = 1892946300000;    // Expiry date: 2029-12-31
-    obj.data.vip.theme_type = 0;              // Theme type
-    
-    // VIP label information
-    if (obj.data.vip.label) {
-      obj.data.vip.label.path = "";
-      obj.data.vip.label.text = "年度大会员";
-      obj.data.vip.label.label_theme = "annual_vip";
-      obj.data.vip.label.text_color = "#FFD700";  // Gold color
-      obj.data.vip.label.bg_style = 1;
-      obj.data.vip.label.bg_color = "#FB7299";    // VIP pink
-      obj.data.vip.label.border_color = "";
-      obj.data.vip.label.use_img_label = true;
-      obj.data.vip.label.img_label_uri_hans = "";
-      obj.data.vip.label.img_label_uri_hant = "";
-      obj.data.vip.label.img_label_uri_hans_static = "https://i0.hdslb.com/bfs/vip/8d4f8bfc713826a5412a0a27eaaac4d6b9ede1d9.png";
-      obj.data.vip.label.img_label_uri_hant_static = "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png";
-      obj.data.vip.label.label_id = 0;
-      obj.data.vip.label.label_goto = null;
+  // Handle playurl API - Unlock video quality
+  if (/\/player\/wbi\/playurl/.test(url)) {
+    if (obj.data) {
+      // Unlock support_formats - this is the key!
+      if (obj.data.support_formats) {
+        obj.data.support_formats.forEach(format => {
+          // Set both to 0 to unlock
+          format.limit_watch_reason = 0;
+          format.can_watch_qn_reason = 0;
+        });
+      }
+      
+      // Make sure high quality is included in accept_quality
+      if (obj.data.accept_quality) {
+        const highQualities = [127, 120, 116, 112];
+        highQualities.forEach(q => {
+          if (!obj.data.accept_quality.includes(q)) {
+            obj.data.accept_quality.unshift(q);
+          }
+        });
+      }
+      
+      // Update accept_description to match
+      if (obj.data.accept_description && obj.data.accept_quality) {
+        const qualityDescMap = {
+          127: "8K 超高清",
+          126: "杜比视界", 
+          125: "HDR 真彩",
+          120: "4K 超清",
+          116: "1080P 60帧",
+          112: "1080P 高码率",
+          80: "1080P 高清",
+          64: "720P 高清",
+          32: "480P 清晰",
+          16: "360P 流畅"
+        };
+        
+        obj.data.accept_description = obj.data.accept_quality.map(q => 
+          qualityDescMap[q] || `${q}P`
+        );
+      }
+      
+      $.msg($.name, ``, "Bilibili playurl quality unlocked");
     }
-    
-    // Avatar and nickname settings
-    obj.data.vip.avatar_subscript = 1;          // Avatar subscript (VIP badge)
-    obj.data.vip.nickname_color = "#FB7299";    // VIP nickname color (pink)
-    obj.data.vip.role = 3;                      // VIP role: 3 = full permissions
-    obj.data.vip.avatar_subscript_url = "";
-    
-    // TV VIP settings
-    obj.data.vip.tv_vip_status = 0;
-    obj.data.vip.tv_vip_pay_type = 0;
-    obj.data.vip.tv_due_date = 1892946300000;
-    
-    // Avatar icon
-    if (!obj.data.vip.avatar_icon) {
-      obj.data.vip.avatar_icon = {};
-    }
-    if (!obj.data.vip.avatar_icon.icon_resource) {
-      obj.data.vip.avatar_icon.icon_resource = {};
-    }
-    
-    // OTT info (TV/Set-top box VIP)
-    if (!obj.data.vip.ott_info) {
-      obj.data.vip.ott_info = {};
-    }
-    obj.data.vip.ott_info.vip_type = 1;
-    obj.data.vip.ott_info.pay_type = 1;
-    obj.data.vip.ott_info.pay_channel_id = "";
-    obj.data.vip.ott_info.status = 1;
-    obj.data.vip.ott_info.overdue_time = 1892946300000;
-    
-    // Super VIP
-    if (!obj.data.vip.super_vip) {
-      obj.data.vip.super_vip = {};
-    }
-    obj.data.vip.super_vip.is_super_vip = true;
-    
-    $.msg($.name, ``, "B站 VIP信息修改成功!\nfor URL: " + url);
   }
+  
+  // Handle player/v2 API
+  if (/\/player\/wbi\/v2/.test(url) && obj.data) {
+    // Unlock quality in support_formats
+    if (obj.data.support_formats) {
+      obj.data.support_formats.forEach(format => {
+        format.limit_watch_reason = 0;
+        format.can_watch_qn_reason = 0;
+      });
+    }
+    
+    // Modify VIP status
+    if (obj.data.vip) {
+      modifyVipStatus(obj.data.vip);
+    }
+    
+    $.msg($.name, ``, "Bilibili player v2 modified");
+  }
+  
+  // Handle space/acc/info API
+  if (/\/space\/wbi\/acc\/info/.test(url) && obj.data && obj.data.vip) {
+    modifyVipStatus(obj.data.vip);
+    $.msg($.name, ``, "Bilibili space info VIP modified");
+  }
+  
 } catch (err) {
   $.msg($.name, ``, "Error modifying Bilibili response: " + err);
+}
+
+// Function to create VIP object
+function createVipObject() {
+  return {
+    type: 2,
+    status: 1,
+    vip_pay_type: 1,
+    due_date: 1892946300000,
+    theme_type: 0,
+    label: {
+      path: "",
+      text: "年度大会员",
+      label_theme: "annual_vip",
+      text_color: "#FFD700",
+      bg_style: 1,
+      bg_color: "#FB7299",
+      border_color: "",
+      use_img_label: true,
+      img_label_uri_hans: "",
+      img_label_uri_hant: "",
+      img_label_uri_hans_static: "https://i0.hdslb.com/bfs/vip/8d4f8bfc713826a5412a0a27eaaac4d6b9ede1d9.png",
+      img_label_uri_hant_static: "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png",
+      label_id: 0,
+      label_goto: null
+    },
+    avatar_subscript: 1,
+    nickname_color: "#FB7299",
+    role: 3,
+    avatar_subscript_url: "",
+    tv_vip_status: 0,
+    tv_vip_pay_type: 0,
+    tv_due_date: 1892946300000,
+    avatar_icon: {
+      icon_resource: {}
+    },
+    ott_info: {
+      vip_type: 1,
+      pay_type: 1,
+      pay_channel_id: "",
+      status: 1,
+      overdue_time: 1892946300000
+    },
+    super_vip: {
+      is_super_vip: true
+    }
+  };
+}
+
+// Function to modify VIP status
+function modifyVipStatus(vip) {
+  vip.type = 2;
+  vip.status = 1;
+  vip.vip_pay_type = 1;
+  vip.due_date = 1892946300000;
+  vip.theme_type = 0;
+  
+  if (vip.label) {
+    vip.label.path = "";
+    vip.label.text = "年度大会员";
+    vip.label.label_theme = "annual_vip";
+    vip.label.text_color = "#FFD700";
+    vip.label.bg_style = 1;
+    vip.label.bg_color = "#FB7299";
+    vip.label.border_color = "";
+    vip.label.use_img_label = true;
+    vip.label.img_label_uri_hans = "";
+    vip.label.img_label_uri_hant = "";
+    vip.label.img_label_uri_hans_static = "https://i0.hdslb.com/bfs/vip/8d4f8bfc713826a5412a0a27eaaac4d6b9ede1d9.png";
+    vip.label.img_label_uri_hant_static = "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png";
+    vip.label.label_id = 0;
+    vip.label.label_goto = null;
+  }
+  
+  vip.avatar_subscript = 1;
+  vip.nickname_color = "#FB7299";
+  vip.role = 3;
+  vip.avatar_subscript_url = "";
+  vip.tv_vip_status = 0;
+  vip.tv_vip_pay_type = 0;
+  vip.tv_due_date = 1892946300000;
+  
+  if (!vip.avatar_icon) {
+    vip.avatar_icon = {};
+  }
+  if (!vip.avatar_icon.icon_resource) {
+    vip.avatar_icon.icon_resource = {};
+  }
+  
+  if (!vip.ott_info) {
+    vip.ott_info = {};
+  }
+  vip.ott_info.vip_type = 1;
+  vip.ott_info.pay_type = 1;
+  vip.ott_info.pay_channel_id = "";
+  vip.ott_info.status = 1;
+  vip.ott_info.overdue_time = 1892946300000;
+  
+  if (!vip.super_vip) {
+    vip.super_vip = {};
+  }
+  vip.super_vip.is_super_vip = true;
 }
 
 $done({ body: JSON.stringify(obj) });
