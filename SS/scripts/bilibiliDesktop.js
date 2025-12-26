@@ -6,7 +6,8 @@
  * - https://api.bilibili.com/x/space/wbi/acc/info (User Space API)
  * 
  * [rewrite_local]
- * ^https?:\/\/api\.bilibili\.com\/x\/(player|space)\/wbi\/(v2|acc\/info) url script-response-body https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/bilibili_vip_multi.js
+ * ^https?:\/\/api\.bilibili\.com\/x\/(player|space)\/wbi\/(v2|acc\/info) url script-response-body https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/bilibiliDesktop.js
+
  * 
  * [mitm]
  * hostname = api.bilibili.com
@@ -19,11 +20,26 @@ $.log(`Request URL: ${$request.url}`);
 $.log(`Response body: ${$response.body}`);
 
 
+
 const url = $request.url;
 let obj = JSON.parse($response.body);
 
 try {
-  // Check if response has data and vip object
+  // Handle playurl API - Unlock video quality
+  if (/\/player\/wbi\/playurl/.test(url)) {
+    if (obj.data && obj.data.support_formats) {
+      // Unlock all quality levels by setting limit_watch_reason to 0
+      obj.data.support_formats.forEach(format => {
+        if (format.limit_watch_reason !== undefined && format.limit_watch_reason === 1) {
+          format.limit_watch_reason = 0;
+          console.log(`Unlocked quality: ${format.new_description || format.display_desc}`);
+        }
+      });
+      console.log("Bilibili video quality unlocked successfully");
+    }
+  }
+  
+  // Handle player/v2 and space/acc/info APIs - Modify VIP status
   if (obj.data && obj.data.vip) {
     // Modify VIP status to premium
     obj.data.vip.type = 2;                    // VIP type: 2 = 年度及以上大会员 (Annual VIP)
@@ -53,6 +69,7 @@ try {
     if (obj.data.vip.nickname_color !== undefined) {
       obj.data.vip.nickname_color = "#FB7299"; // VIP nickname color (pink)
     }
+    
     $.msg($.name, ``, "Bilibili VIP status modified successfully for URL: " + url);
   }
 } catch (err) {
