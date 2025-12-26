@@ -2,7 +2,7 @@
 #!desc=B站桌面解锁会员
 
 [Script]
-bilibili_player = type=http-response,pattern=^https?:\/\/api\.bilibili\.com\/x\/player\/wbi\/v2,requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/bilibiliDesktop.js
+bilibili_player = type=http-response,pattern=^https?:\/\/api\.bilibili\.com\/x\/(player|space)\/wbi\/(v2|acc\/info|playurl),requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/yangwudong/Quantumult-X/refs/heads/main/SS/scripts/bilibiliDesktop.js
 
 [MITM]
 hostname = api.bilibili.com
