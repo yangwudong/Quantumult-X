@@ -1,41 +1,65 @@
-// Bilibili Player API VIP Modifier
-// For use with Shadowrocket module
-// URL pattern: https://api.bilibili.com/x/player/wbi/v2
+/*
+ * Bilibili VIP Modifier for Multiple APIs
+ * For Quantumult X
+ * Supports:
+ * - https://api.bilibili.com/x/player/wbi/v2 (Player API)
+ * - https://api.bilibili.com/x/space/wbi/acc/info (User Space API)
+ * 
+ * [rewrite_local]
+ * ^https?:\/\/api\.bilibili\.com\/x\/(player|space)\/wbi\/(v2|acc\/info) url script-response-body https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/bilibili_vip_multi.js
+ * 
+ * [mitm]
+ * hostname = api.bilibili.com
+ */
+
 const $ = new Env('B站');
 
 $.msg($.name, ``, `Bilibili request matched - Jack Yang`);
 $.log(`Request URL: ${$request.url}`);
 $.log(`Response body: ${$response.body}`);
 
-const url = $request.url;
-let body = $response.body;
 
-if (/https?:\/\/api\.bilibili\.com\/x\/player\/wbi\/v2/.test(url)) {
-  try {
-    let obj = JSON.parse(body);
+const url = $request.url;
+let obj = JSON.parse($response.body);
+
+try {
+  // Check if response has data and vip object
+  if (obj.data && obj.data.vip) {
+    // Modify VIP status to premium
+    obj.data.vip.type = 2;                    // VIP type: 2 = 年度及以上大会员 (Annual VIP)
+    obj.data.vip.status = 1;                  // Status: 1 = active
+    obj.data.vip.vip_pay_type = 1;            // Payment type: 1 = paid subscription
+    obj.data.vip.due_date = 4669824160000;    // Expiry date (far future, in milliseconds)
     
-    // Check if the response has the expected structure
-    if (obj.data && obj.data.vip) {
-      // Modify VIP status to premium
-      obj.data.vip.type = 2;                    // VIP type: 2 = premium
-      obj.data.vip.status = 1;                  // Status: 1 = active
-      obj.data.vip.vip_pay_type = 1;            // Payment type
-      obj.data.vip.due_date = 4669824160000;    // Expiry date (far future, in milliseconds)
-      
-      // Optional: Update other VIP-related fields
-      obj.data.vip.role = 3;                    // VIP role
-      obj.data.vip.tv_vip_status = 1;           // TV VIP status
-      obj.data.vip.tv_vip_pay_type = 1;         // TV VIP payment type
-      
-      body = JSON.stringify(obj);
-      console.log("Bilibili Player VIP status modified successfully");
+    // Update VIP role and other related fields
+    obj.data.vip.role = 3;                    // VIP role: 3 = 大角色权限
+    obj.data.vip.tv_vip_status = 1;           // TV VIP status
+    obj.data.vip.tv_vip_pay_type = 1;         // TV VIP payment type
+    obj.data.vip.tv_due_date = 4669824160000; // TV VIP expiry date
+    
+    // Update label information
+    if (obj.data.vip.label) {
+      obj.data.vip.label.text = "年度大会员";     // Label text
+      obj.data.vip.label.label_theme = "annual_vip"; // Label theme
+      obj.data.vip.label.text_color = "#FFFFFF";     // Text color
+      obj.data.vip.label.bg_style = 1;               // Background style
+      obj.data.vip.label.bg_color = "#FB7299";       // Background color (VIP pink)
     }
-  } catch (err) {
-    console.log("Error modifying Bilibili Player response: " + err);
+    
+    // Update avatar and visual elements
+    if (obj.data.vip.avatar_subscript !== undefined) {
+      obj.data.vip.avatar_subscript = 1;      // Avatar subscript (VIP badge)
+    }
+    if (obj.data.vip.nickname_color !== undefined) {
+      obj.data.vip.nickname_color = "#FB7299"; // VIP nickname color (pink)
+    }
+    $.msg($.name, ``, "Bilibili VIP status modified successfully for URL: " + url);
   }
+} catch (err) {
+  $.msg($.name, ``, "Error modifying Bilibili response: " + err);
 }
 
-$done({ body });
+$done({ body: JSON.stringify(obj) });
 
 
 // prettier-ignore
