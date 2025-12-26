@@ -20,7 +20,6 @@ $.log(`Request URL: ${$request.url}`);
 $.log(`Response body: ${$response.body}`);
 
 
-
 const url = $request.url;
 let obj = JSON.parse($response.body);
 
@@ -32,7 +31,7 @@ try {
       obj.data.support_formats.forEach(format => {
         if (format.limit_watch_reason !== undefined && format.limit_watch_reason === 1) {
           format.limit_watch_reason = 0;
-          $.msg($.name, ``, `Unlocked quality: ${format.new_description || format.display_desc}`);
+          $.log(`Unlocked quality: ${format.new_description || format.display_desc}`);
         }
       });
       $.log("Bilibili video quality unlocked successfully");
@@ -41,36 +40,67 @@ try {
   
   // Handle player/v2 and space/acc/info APIs - Modify VIP status
   if (obj.data && obj.data.vip) {
-    // Modify VIP status to premium
+    // Core VIP status
     obj.data.vip.type = 2;                    // VIP type: 2 = 年度及以上大会员 (Annual VIP)
     obj.data.vip.status = 1;                  // Status: 1 = active
     obj.data.vip.vip_pay_type = 1;            // Payment type: 1 = paid subscription
-    obj.data.vip.due_date = 4669824160000;    // Expiry date (far future, in milliseconds)
+    obj.data.vip.due_date = 1892946300000;    // Expiry date: 2029-12-31
+    obj.data.vip.theme_type = 0;              // Theme type
     
-    // Update VIP role and other related fields
-    obj.data.vip.role = 3;                    // VIP role: 3 = 大角色权限
-    obj.data.vip.tv_vip_status = 1;           // TV VIP status
-    obj.data.vip.tv_vip_pay_type = 1;         // TV VIP payment type
-    obj.data.vip.tv_due_date = 4669824160000; // TV VIP expiry date
-    
-    // Update label information
+    // VIP label information
     if (obj.data.vip.label) {
-      obj.data.vip.label.text = "年度大会员";     // Label text
-      obj.data.vip.label.label_theme = "annual_vip"; // Label theme
-      obj.data.vip.label.text_color = "#FFFFFF";     // Text color
-      obj.data.vip.label.bg_style = 1;               // Background style
-      obj.data.vip.label.bg_color = "#FB7299";       // Background color (VIP pink)
+      obj.data.vip.label.path = "";
+      obj.data.vip.label.text = "年度大会员";
+      obj.data.vip.label.label_theme = "annual_vip";
+      obj.data.vip.label.text_color = "#FFD700";  // Gold color
+      obj.data.vip.label.bg_style = 1;
+      obj.data.vip.label.bg_color = "#FB7299";    // VIP pink
+      obj.data.vip.label.border_color = "";
+      obj.data.vip.label.use_img_label = true;
+      obj.data.vip.label.img_label_uri_hans = "";
+      obj.data.vip.label.img_label_uri_hant = "";
+      obj.data.vip.label.img_label_uri_hans_static = "https://i0.hdslb.com/bfs/vip/8d4f8bfc713826a5412a0a27eaaac4d6b9ede1d9.png";
+      obj.data.vip.label.img_label_uri_hant_static = "https://i0.hdslb.com/bfs/activity-plat/static/20220614/e369244d0b14644f5e1a06431e22a4d5/VEW8fCC0hg.png";
+      obj.data.vip.label.label_id = 0;
+      obj.data.vip.label.label_goto = null;
     }
     
-    // Update avatar and visual elements
-    if (obj.data.vip.avatar_subscript !== undefined) {
-      obj.data.vip.avatar_subscript = 1;      // Avatar subscript (VIP badge)
+    // Avatar and nickname settings
+    obj.data.vip.avatar_subscript = 1;          // Avatar subscript (VIP badge)
+    obj.data.vip.nickname_color = "#FB7299";    // VIP nickname color (pink)
+    obj.data.vip.role = 3;                      // VIP role: 3 = full permissions
+    obj.data.vip.avatar_subscript_url = "";
+    
+    // TV VIP settings
+    obj.data.vip.tv_vip_status = 0;
+    obj.data.vip.tv_vip_pay_type = 0;
+    obj.data.vip.tv_due_date = 1892946300000;
+    
+    // Avatar icon
+    if (!obj.data.vip.avatar_icon) {
+      obj.data.vip.avatar_icon = {};
     }
-    if (obj.data.vip.nickname_color !== undefined) {
-      obj.data.vip.nickname_color = "#FB7299"; // VIP nickname color (pink)
+    if (!obj.data.vip.avatar_icon.icon_resource) {
+      obj.data.vip.avatar_icon.icon_resource = {};
     }
     
-    $.msg($.name, ``, "Bilibili VIP status modified successfully for URL: " + url);
+    // OTT info (TV/Set-top box VIP)
+    if (!obj.data.vip.ott_info) {
+      obj.data.vip.ott_info = {};
+    }
+    obj.data.vip.ott_info.vip_type = 1;
+    obj.data.vip.ott_info.pay_type = 1;
+    obj.data.vip.ott_info.pay_channel_id = "";
+    obj.data.vip.ott_info.status = 1;
+    obj.data.vip.ott_info.overdue_time = 1892946300000;
+    
+    // Super VIP
+    if (!obj.data.vip.super_vip) {
+      obj.data.vip.super_vip = {};
+    }
+    obj.data.vip.super_vip.is_super_vip = true;
+    
+    $.msg($.name, ``, "B站 VIP信息修改成功!\nfor URL: " + url);
   }
 } catch (err) {
   $.msg($.name, ``, "Error modifying Bilibili response: " + err);
