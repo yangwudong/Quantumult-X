@@ -15,7 +15,7 @@
 
 const $ = new Env('B站');
 
-$.msg($.name, ``, `Bilibili request matched - Jack Yang`);
+$.log(`Bilibili request matched - Jack Yang`);
 $.log(`Request URL: ${$request.url}`);
 $.log(`Response body: ${$response.body}`);
 
@@ -32,10 +32,10 @@ try {
       obj.data.support_formats.forEach(format => {
         if (format.limit_watch_reason !== undefined && format.limit_watch_reason === 1) {
           format.limit_watch_reason = 0;
-          console.log(`Unlocked quality: ${format.new_description || format.display_desc}`);
+          $.msg($.name, ``, `Unlocked quality: ${format.new_description || format.display_desc}`);
         }
       });
-      console.log("Bilibili video quality unlocked successfully");
+      $.log("Bilibili video quality unlocked successfully");
     }
   }
   
